@@ -1,65 +1,47 @@
-import Options from "./components/Options/Options";
-import Feedback from "./components/Feedback/Feedback";
-import Notification from "./components/Notification/Notification";
-import { useState, useEffect } from "react";
+import './App.css';
+import ContactForm from './components/ContactForm/ContactForm';
+import SearchBox from './components/SearchBox/SearchBox'
+import ContactList from './components/ContactList/ContactList'
+import Contact from './components/Contact/Contact'
+import { Formik, Field, Form } from "formik";
+import { useState, useEffect} from 'react';
+import { nanoid } from 'nanoid'; 
 
 function App() {
-  const [feedbackCounts, setFeedbackCounts] = useState({
-    good: 0,
-    neutral: 0,
-    bad: 0
-  });
+  const [contacts, setContacts] = useState([
+    { id: 'id-1', name: 'Rosie Simpson', number: '459-12-56' },
+    { id: 'id-2', name: 'Hermione Kline', number: '443-89-12' },
+    { id: 'id-3', name: 'Eden Clements', number: '645-17-79' },
+    { id: 'id-4', name: 'Annie Copeland', number: '227-91-26' },
+  ]);
 
-  const handleFeedback = (type) => {
-    setFeedbackCounts((prevCounts) => ({
-      ...prevCounts,
-      [type]: prevCounts[type] + 1
-    }));
+  const [filter, setFilter] = useState('');
+
+  const addContact = (newContact) => {
+    setContacts((prevContacts) => [...prevContacts, { ...newContact, id: nanoid() }]);
   };
 
-  const clearFeedback = () => {
-    setFeedbackCounts({
-      good: 0,
-      neutral: 0,
-      bad: 0
+  const deleteContact = (contactId) => {
+    setContacts((prevContact) => {
+      return prevContact.filter((contact) => contact.id !== contactId);
     });
   };
 
-  const calculateTotalFeedback = () => {
-    return feedbackCounts.good + feedbackCounts.neutral + feedbackCounts.bad;
-  };
 
-  const calculatePositiveFeedbackPercentage = () => {
-    const total = calculateTotalFeedback();
-    return total > 0 ? Math.round((feedbackCounts.good / total) * 100) : 0;
-  };
-
-  useEffect(() => {
-    const storedFeedback = localStorage.getItem("feedbackCounts");
-    if (storedFeedback) {
-      setFeedbackCounts(JSON.parse(storedFeedback));
-    }
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem("feedbackCounts", JSON.stringify(feedbackCounts));
-  }, [feedbackCounts]);
-
-  const totalFeedback = calculateTotalFeedback();
-  const positiveFeedbackPercentage = calculatePositiveFeedbackPercentage();
+  const filteredContacts = contacts.filter(contact =>
+    contact.name.toLowerCase().includes(filter.toLowerCase())
+  );
 
   return (
-    <div className="container">
-      <h1>Sip Happens Café</h1>
-      <p>We value your feedback. Please let us know about your experience.</p>
-      <Options leaveFeedback={handleFeedback} resetFeedback={clearFeedback} totalFeedback={totalFeedback} />
-      {totalFeedback > 0 ? (
-        <Feedback feedback={feedbackCounts} totalFeedback={totalFeedback} positiveFeedback={positiveFeedbackPercentage} />
-      ) : (
-        <Notification message="No feedback given yet." />
-      )}
-    </div>
-  );
+    <>
+<div>
+  <h1>Phonebook</h1>
+  <ContactForm onAddContact={addContact}/>
+  <ContactList contacts={filteredContacts} onDeleteContact={deleteContact} />
+</div>
+
+    </>
+  )
 }
 
-export default App;
+export default App
