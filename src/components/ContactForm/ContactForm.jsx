@@ -1,39 +1,45 @@
 import s from './ContactForm.module.css';
-import { useState } from "react";
+import { Formik, Form, Field, ErrorMessage } from "formik";
+import * as Yup from "yup";
 
 export default function ContactForm({ onAddContact }) {
-  
-  const [name, setName] = useState('');
-  const [number, setNumber] = useState('');
+  const FeedbackSchema = Yup.object().shape({
+    name: Yup.string().min(3, "Too Short!").max(50, "Too Long!").required("Required"),
+    number: Yup.string().min(3, "Too Short!").max(50, "Too Long!").required("Required"),
+  });
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    onAddContact({ name, number });
-    setName('');
-    setNumber('');
+  const handleSubmit = (values, { resetForm }) => {
+    onAddContact(values);
+    resetForm(); 
   };
 
   return (
-    <form className={s.formContact} onSubmit={handleSubmit}>
-      <label className={s.labelContact}>Name</label>
-      <input
-        className={s.field}
-        type="text"
-        name="name"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        required
-      />
-      <label className={s.labelContact}>Number</label>
-      <input
-        className={s.field}
-        type="tel"
-        name="number"
-        value={number}
-        onChange={(e) => setNumber(e.target.value)}
-        required
-      />
-      <button className={s.buttonAdd} type="submit">Add contact</button>
-    </form>
+    <Formik
+      initialValues={{ name: "", number: "" }}
+      onSubmit={handleSubmit}
+      validationSchema={FeedbackSchema}
+    >
+      {() => (
+        <Form className={s.formContact}>
+          <label className={s.labelContact}>Name</label>
+          <ErrorMessage name="name" component="div" className={s.errorMessage}/>
+          <Field
+            className={s.field}
+            type="text"
+            name="name" 
+          />
+
+          <label className={s.labelContact}>Number</label>
+          <ErrorMessage name="number" component="div" className={s.errorMessage}/>
+          <Field
+            className={s.field}
+            type="tel"
+            name="number" 
+          />
+
+          <button className={s.buttonAdd} type="submit">Add contact</button>
+        </Form>
+      )}
+    </Formik>
   );
 }

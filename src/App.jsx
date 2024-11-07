@@ -4,7 +4,6 @@ import SearchBox from './components/SearchBox/SearchBox'
 import ContactList from './components/ContactList/ContactList'
 import { useState, useEffect  } from 'react';
 import { nanoid } from 'nanoid'; 
-import { } from 'react';
 
 function App() {
   const [contacts, setContacts] = useState(() => {
